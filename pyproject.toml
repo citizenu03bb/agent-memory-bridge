@@ -1,0 +1,31 @@
+[project]
+name = "agent-memory-bridge"
+version = "0.1.0"
+description = "Federated cross-agent persistent memory bridge for Claude Code, Codex, Antigravity, and Pi"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    {name = "Patrick Kappeler", email = "58693036+citizenu03bb@users.noreply.github.com"}
+]
+license = {text = "MIT"}
+dependencies = [
+    "pyyaml>=6.0",
+    "mcp>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+]
+
+[project.scripts]
+agent-memory-bridge = "agent_memory_bridge.cli:main"
+agent-memory-mcp = "agent_memory_bridge.mcp_server:main"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}

@@ -1,0 +1,5 @@
+#!/bin/bash
+# List all memories across Claude Code, Codex, and Neutral stores.
+set -e
+source "$(dirname "$(readlink -f "$0")")/_resolve_bin.sh"
+exec "$BIN" list "$@"
