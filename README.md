@@ -113,6 +113,32 @@ Register the server in any MCP client. For Antigravity, add this entry to `~/.ge
 
 If the client does not inherit your shell `PATH`, use the absolute path printed by `command -v agent-memory-mcp`.
 
+## Antigravity Push Hook (experimental)
+
+Through MCP, Antigravity only sees memory when the agent decides to call the bridge. `scripts/antigravity_memory_hook.py` is a `PreInvocation` hook that injects the `agent-memory-bridge list` index as an ephemeral message on the first model call of every user turn, the same way Claude Code preloads `MEMORY.md`. Add it to `~/.gemini/config/hooks.json` (all workspaces) or `<workspace>/.agents/hooks.json`:
+
+```json
+{
+  "agent-memory-bridge": {
+    "PreInvocation": [
+      {
+        "type": "command",
+        "command": "/absolute/path/to/agent-memory-bridge/scripts/antigravity_memory_hook.py",
+        "timeout": 20
+      }
+    ]
+  }
+}
+```
+
+Notes, observed with Antigravity CLI 1.5.14:
+
+- Ephemeral messages are dropped after the turn they were injected in, so the hook re-injects on each user turn (`invocationNum == 0`). This costs about 1k tokens per turn at the current index size (`AMB_HOOK_MAX_CHARS` caps it, 12000 characters by default).
+- The hook uses only the standard library, needs no extra install, and prints `{}` on any failure, so it never blocks the agent loop.
+- `AMB_HOOK_DEBUG=1` appends every hook payload to `$XDG_STATE_HOME/agent-memory-bridge/antigravity-hook/debug.jsonl`.
+
+Antigravity's `brain/` artifacts and conversation databases are deliberately not federated: they are session transcripts and plans, not curated memory. Promote what matters into the neutral store with `record_memory` instead.
+
 ## Skill Installation & Symlinks
 
 The repo ships a `consult-memory` skill in two flavours: read-write (`skill/`) for agents without native memory, and read-only (`skill-readonly/`) for Claude Code and Codex, which record through their own mechanism. To link it into every installed agent:
